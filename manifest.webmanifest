@@ -1,0 +1,13 @@
+{
+  "id":"./",
+  "name":"Balloon Blitz V3",
+  "short_name":"Blitz V3",
+  "description":"Fast, accessible offline balloon-popping arcade game.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "orientation":"portrait-primary",
+  "background_color":"#78c9f4",
+  "theme_color":"#78c9f4",
+  "categories":["games","entertainment"]
+}

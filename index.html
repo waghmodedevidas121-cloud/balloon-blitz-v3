@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#78c9f4">
+  <meta name="description" content="Balloon Blitz V3 — a fast, accessible offline arcade game.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/app.css">
+  <title>Balloon Blitz V3</title>
+</head>
+<body>
+  <canvas id="game" aria-label="Balloon Blitz play field"></canvas>
+  <div class="sky" aria-hidden="true"></div>
+  <main id="app">
+    <section id="home" class="screen" aria-labelledby="title">
+      <header class="topbar"><div><strong>POPPER</strong><small id="rank">ROOKIE · LV 1</small></div><button id="settingsBtn" class="icon" aria-label="Settings">⚙️</button></header>
+      <div class="hero"><p class="eyebrow">SKY REALMS</p><h1 id="title">BALLOON<br><span>BLITZ</span></h1><p>Pop fast. Build combos. Own the sky.</p></div>
+      <div class="stats" aria-label="Player statistics"><div><b id="best">0</b><span>Best</span></div><div><b id="pops">0</b><span>Pops</span></div><div><b id="coins">0</b><span>Coins</span></div></div>
+      <div class="modes">
+        <button data-mode="blitz"><span>⚡</span><b>Blitz</b><small>60-second rush</small></button>
+        <button data-mode="survival"><span>♾️</span><b>Survival</b><small>Three lives</small></button>
+        <button data-mode="campaign"><span>🎯</span><b>Campaign</b><small id="campaignMeta">Stage 1 of 30</small></button>
+      </div>
+      <button id="playBtn" class="primary">PLAY BLITZ</button>
+    </section>
+
+    <section id="hud" class="hud hidden" aria-live="polite">
+      <button id="pauseBtn" class="icon" aria-label="Pause">⏸</button>
+      <div><small id="modeLabel">BLITZ</small><b id="score">0</b></div>
+      <div><small id="targetLabel">TIME</small><b id="target">60</b></div>
+      <div class="combo"><small>COMBO</small><b id="combo">×1</b></div>
+    </section>
+
+    <section id="pause" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+      <div class="card"><h2 id="pauseTitle">Paused</h2><p>Your run is safe.</p><button id="resumeBtn" class="primary">Resume</button><button id="restartBtn">Restart</button><button id="quitBtn">Quit to home</button></div>
+    </section>
+
+    <section id="result" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <div class="card"><p class="eyebrow" id="resultKicker">RUN COMPLETE</p><h2 id="resultTitle">Great run!</h2><div class="resultScore" id="finalScore">0</div><p id="resultText"></p><button id="againBtn" class="primary">Play again</button><button id="homeBtn">Back home</button></div>
+    </section>
+
+    <section id="settings" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="card"><h2 id="settingsTitle">Settings</h2><label><span>Sound</span><input id="soundToggle" type="checkbox"></label><label><span>Haptics</span><input id="hapticToggle" type="checkbox"></label><label><span>Reduced effects</span><input id="effectsToggle" type="checkbox"></label><button id="resetBtn" class="danger">Reset progress</button><button id="closeSettingsBtn" class="primary">Done</button></div>
+    </section>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
