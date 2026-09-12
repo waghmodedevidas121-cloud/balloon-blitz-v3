@@ -2,10 +2,9 @@ name: Bootstrap Balloon Blitz V3
 
 on:
   push:
-    branches: [production-v3]
+    branches: [main]
     paths:
       - '.github/workflows/bootstrap-v3.yml'
-      - 'scripts/harden-v3.mjs'
   workflow_dispatch:
 
 permissions:
