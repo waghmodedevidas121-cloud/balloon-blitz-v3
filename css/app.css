@@ -212,5 +212,30 @@ body.playing .sky { filter: saturate(.92) brightness(.98); }
   *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
 
+/* Balloon Blitz button-atlas accents, cropped from the supplied transparent PNG. */
+.topbar { border-color: #ffffff; background: linear-gradient(115deg, #fffdf5ed, #fff8e7e8); box-shadow: 0 9px 26px #31506920, inset 0 1px 0 #fff; }
+.home-stats > div { border-color: #ffffff; background: linear-gradient(145deg, #fffef9f2, #fff7e5e8); box-shadow: 0 6px 18px #31506917, inset 0 1px 0 #fff; }
+.mode-card { border-color: #ffffffc9; background: linear-gradient(145deg, #fffdf8ee, #fff7e8e8); box-shadow: 0 5px 14px #31506916, inset 0 1px 0 #fff; backdrop-filter: blur(8px); }
+.mode-card.selected { border-color: #ffd15f; background: linear-gradient(145deg, #fff6d9f5, #ffe29ef2); box-shadow: 0 4px 0 #bd7218, 0 9px 22px #bd72182a, inset 0 1px 0 #fff; }
+.play-cta { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 58px; border: 1px solid #fff9; border-radius: 18px; background: linear-gradient(180deg, #ffe28e, #f7a928); box-shadow: 0 4px 0 #bd7218, 0 9px 18px #bd72182b, inset 0 2px 0 #fff9; color: #513006; text-shadow: 0 1px 0 #fff8; }
+.play-cta::before { content: ""; width: 34px; height: 34px; flex: 0 0 34px; background: url("../assets/ui/play.png") center / contain no-repeat; }
+#settingsBtn { color: transparent; font-size: 0; border: 0; background: url("../assets/ui/settings.png") center / 40px no-repeat transparent; box-shadow: none; }
+#settingsBtn:active { transform: translateY(2px); box-shadow: none; }
+.back-button { color: transparent; font-size: 0; border: 0; background: url("../assets/ui/back.png") center / 42px no-repeat transparent; box-shadow: none; }
+.back-button:active { transform: translateY(2px); box-shadow: none; }
+#pauseBtn { color: transparent; font-size: 0; border: 0; background: url("../assets/ui/pause.png") center / 40px no-repeat transparent; box-shadow: none; }
+#pauseBtn:active { transform: translateY(2px); box-shadow: none; }
+.mode-card[data-mode="campaign"] .mode-icon { width: 38px; height: 38px; color: transparent; background: url("../assets/ui/medal.png") center / contain no-repeat; }
+#bottomNav { border-top-color: #ffffff; background: linear-gradient(180deg, #fffdf0e8, #fff5d9f5); box-shadow: 0 -8px 26px #31506918; }
+#bottomNav button { min-height: 52px; }
+#bottomNav button span { display: block; width: 32px; height: 32px; flex: 0 0 32px; overflow: hidden; font-size: 0; line-height: 0; background-position: center; background-repeat: no-repeat; background-size: contain; }
+#bottomNav button:nth-child(1) span { background-image: url("../assets/ui/home.png"); }
+#bottomNav button:nth-child(2) span { background-image: url("../assets/ui/map.png"); }
+#bottomNav button:nth-child(3) span { background-image: url("../assets/ui/trophy.png"); }
+#bottomNav button:nth-child(4) span { background-image: url("../assets/ui/shop.png"); }
+#bottomNav button:nth-child(5) span { background-image: url("../assets/ui/profile.png"); }
+#bottomNav button[aria-current="page"] { color: #79510e; background: linear-gradient(180deg, #fff1c7, #ffe8a9); }
+#bottomNav button small { font-size: 9px; }
+
 .hidden { display: none !important; }
 #bottomNav.hidden { display: none !important; }

@@ -4,6 +4,7 @@ import { CAMPAIGN_LENGTH, PUZZLE_LENGTH, SLINGSHOT_LENGTH, WORLDS, campaignStage
 import { CAMPAIGN_LEVELS, PUZZLE_CATALOG, SLINGSHOT_CATALOG } from '../js/catalog.js';
 
 const required = ['index.html', 'css/app.css', 'js/app.js', 'js/content.js', 'js/catalog.js', 'manifest.webmanifest', 'sw.js'];
+required.push('assets/ui/play.png', 'assets/ui/back.png', 'assets/ui/profile.png', 'assets/ui/home.png', 'assets/ui/map.png', 'assets/ui/trophy.png', 'assets/ui/shop.png', 'assets/ui/settings.png', 'assets/ui/pause.png', 'assets/ui/medal.png');
 for (const file of required) if (!fs.existsSync(file)) throw new Error(`Missing required file: ${file}`);
 for (const file of ['js/app.js', 'js/content.js', 'js/catalog.js', 'sw.js', 'tests/static-check.mjs']) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 JSON.parse(fs.readFileSync('manifest.webmanifest', 'utf8'));
@@ -25,7 +26,7 @@ const bestWrite = app.indexOf('save.best = Math.max(save.best, score);');
 if (bestCheck < 0 || bestWrite < 0 || bestCheck > bestWrite) throw new Error('New personal-best results must be detected before saving the new best');
 if (!app.includes('objectiveProgress >= campaignGoal')) throw new Error('Campaign completion must use the same objective target displayed by its progress bar');
 if (!app.includes("event.target !== canvas || state !== 'playing'")) throw new Error('Gameplay input must ignore UI and non-playing pointer events');
-if (!serviceWorker.includes('balloon-blitz-v3-5') || !serviceWorker.includes('./js/content.js') || !serviceWorker.includes('./js/catalog.js')) throw new Error('Offline cache must version and include the new stage catalog');
+if (!serviceWorker.includes('balloon-blitz-v3-6') || !serviceWorker.includes('./js/content.js') || !serviceWorker.includes('./js/catalog.js') || !serviceWorker.includes('./assets/ui/play.png')) throw new Error('Offline cache must version and include the stage catalog and UI assets');
 if (CAMPAIGN_LENGTH !== 600 || PUZZLE_LENGTH !== 50 || SLINGSHOT_LENGTH !== 50 || WORLDS.length !== 24) throw new Error('Expected the complete V2 content catalog: 600 stages, 24 worlds, 50 puzzles, 50 slingshot stages');
 if (CAMPAIGN_LEVELS.filter(stage => stage.isBoss).length !== 72 || CAMPAIGN_LEVELS.filter(stage => stage.isMidBoss).length !== 48 || CAMPAIGN_LEVELS.filter(stage => stage.isEscort).length !== 12 || SLINGSHOT_CATALOG.filter(stage => stage.bossHp).length !== 8) throw new Error('The V2 boss, mid-boss, escort, and slingshot-boss data must remain intact');
 for (let stage = 1; stage <= CAMPAIGN_LENGTH; stage++) {

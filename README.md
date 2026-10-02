@@ -22,6 +22,7 @@ A standalone, offline-friendly balloon-popping arcade. V3 keeps its lightweight 
 ## What remains V3-specific
 
 - The V3 **Sky Realms** identity, warm storybook UI, and lightweight canvas presentation.
+- The supplied bubble-button atlas, cropped into compact local sprites for play, navigation, campaign, and game controls; all are bundled for offline use.
 - V3's versioned, device-local save format and personal-record screens; scores remain local rather than being represented as an online leaderboard.
 - The objective-matched accessible campaign progress bar, protected canvas pointer routing, and personal-best detection-before-save behavior retained on the existing campaign-progress PR branch.
 
