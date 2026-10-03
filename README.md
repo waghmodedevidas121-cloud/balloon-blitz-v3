@@ -39,3 +39,17 @@ python3 -m http.server 8080
 ```bash
 npm test
 ```
+
+
+## Runtime structure
+
+The browser entry in `js/app.js` only boots the application. The composition root in `js/game/application.js` coordinates a run and connects the UI to services; reusable rules and platform work live outside it:
+
+- `js/core/progression.js` contains pure unlock, campaign-objective, star, streak, and payout rules.
+- `js/modes/` owns the V2-derived campaign, puzzle, slingshot, world, cosmetic, achievement, and daily-mission content.
+- `js/persistence/save-store.js` owns the versioned local save key, normalization, debounced writes, and page lifecycle flushing.
+- `js/input/game-input.js` owns canvas pointer, drag, slingshot aim/release, Escape pause, and background-pause listeners.
+- `js/ui/canvas-renderer.js` owns canvas drawing; it receives a read-only frame model and does not access screens or saved data.
+- `assets/ui/` remains the source of local UI sprites; `sw.js` caches the full runtime module graph for offline play.
+
+The module tests cover progression and save contracts, input routing, and architectural boundaries; the static suite still validates every campaign stage, puzzle solution, slingshot layout, accessible UI contract, and offline asset.
