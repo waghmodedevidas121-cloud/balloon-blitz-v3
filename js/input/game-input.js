@@ -9,11 +9,15 @@ export function bindGameInput({
   documentTarget = globalThis.document
 }) {
   let aimPointer = null;
+  let activePointerId = null;
   const setAim = value => { aimPointer = value; };
+  const clearPointer = () => { activePointerId = null; setAim(null); };
 
   function onPointerDown(event) {
-    if (event.target !== canvas || getState() !== 'playing') return;
+    if (event.target !== canvas || getState() !== 'playing' || activePointerId !== null || event.isPrimary === false) return;
+    if (event.button !== undefined && event.button !== 0) return;
     event.preventDefault();
+    activePointerId = event.pointerId ?? null;
     if (getMode() === 'slingshot') {
       setAim({ x: event.clientX, y: event.clientY });
       try { canvas.setPointerCapture(event.pointerId); } catch { /* optional */ }
@@ -24,7 +28,7 @@ export function bindGameInput({
   }
 
   function onPointerMove(event) {
-    if (event.target !== canvas || getState() !== 'playing') return;
+    if (event.target !== canvas || getState() !== 'playing' || activePointerId === null || event.pointerId !== activePointerId) return;
     if (getMode() === 'slingshot' && aimPointer) {
       setAim({ x: event.clientX, y: event.clientY });
       return;
@@ -33,17 +37,28 @@ export function bindGameInput({
   }
 
   function onPointerUp(event) {
+    if (activePointerId === null || event.pointerId !== activePointerId) return;
     if (getMode() === 'slingshot' && aimPointer && getState() === 'playing') {
       const pointer = { x: event.clientX, y: event.clientY };
       setAim(pointer);
       onFireArrow(pointer);
-      setAim(null);
     }
+    clearPointer();
   }
 
-  function onPointerCancel() { setAim(null); }
-  function onVisibilityChange() { if (documentTarget.hidden && getState() === 'playing') onPause(); }
-  function onKeyDown(event) { if (event.key === 'Escape' && getState() === 'playing') onPause(); }
+  function onPointerCancel(event) {
+    if (activePointerId !== null && event.pointerId === activePointerId) clearPointer();
+  }
+
+  function onVisibilityChange() {
+    if (!documentTarget.hidden) return;
+    clearPointer();
+    if (getState() === 'playing') onPause();
+  }
+
+  function onKeyDown(event) {
+    if (event.key === 'Escape' && getState() === 'playing') onPause();
+  }
 
   canvas.addEventListener('pointerdown', onPointerDown, { passive: false });
   canvas.addEventListener('pointermove', onPointerMove);
@@ -54,8 +69,9 @@ export function bindGameInput({
 
   return {
     getAimPointer: () => aimPointer,
-    clearAim: () => setAim(null),
+    clearAim: clearPointer,
     destroy() {
+      clearPointer();
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerup', onPointerUp);

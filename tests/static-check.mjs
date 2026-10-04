@@ -53,7 +53,8 @@ if (!app.includes('objectiveProgress >= campaignGoal')) throw new Error('Campaig
 for (const modulePath of ['./js/core/progression.js', './js/modes/content.js', './js/modes/catalog.js', './js/modes/rewards.js', './js/ui/canvas-renderer.js', './js/input/game-input.js', './js/persistence/save-store.js']) {
   if (!serviceWorker.includes(modulePath)) throw new Error(`Offline cache must include ${modulePath}`);
 }
-if (!serviceWorker.includes('balloon-blitz-v3-8') || !serviceWorker.includes('./assets/ui/play.png')) throw new Error('Offline cache must bump its version and include the bubble-button assets');
+if (!serviceWorker.includes('balloon-blitz-v3-9') || !serviceWorker.includes("key.startsWith(CACHE_PREFIX)") || !serviceWorker.includes('./assets/ui/play.png')) throw new Error('Offline cache must bump its version, preserve unrelated caches, and include the bubble-button assets');
+if (!app.includes("updateViaCache: 'none'")) throw new Error('Service-worker registration must check for updated worker files outside the HTTP cache');
 if (CAMPAIGN_LENGTH !== 600 || PUZZLE_LENGTH !== 50 || SLINGSHOT_LENGTH !== 50 || WORLDS.length !== 24) throw new Error('Expected the complete V2 content catalog: 600 stages, 24 worlds, 50 puzzles, 50 slingshot stages');
 if (CAMPAIGN_LEVELS.filter(stage => stage.isBoss).length !== 72 || CAMPAIGN_LEVELS.filter(stage => stage.isMidBoss).length !== 48 || CAMPAIGN_LEVELS.filter(stage => stage.isEscort).length !== 12 || SLINGSHOT_CATALOG.filter(stage => stage.bossHp).length !== 8) throw new Error('The V2 boss, mid-boss, escort, and slingshot-boss data must remain intact');
 for (let stage = 1; stage <= CAMPAIGN_LENGTH; stage++) {

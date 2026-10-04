@@ -22,11 +22,11 @@ class EventTargetFake {
   }
 }
 
-function mockStorage(initial = null) {
+function mockStorage(initial = null, { failRead = null, failWrite = null } = {}) {
   let value = initial;
   return {
-    getItem(key) { assert.equal(key, SAVE_KEY); return value; },
-    setItem(key, next) { assert.equal(key, SAVE_KEY); value = next; },
+    getItem(key) { assert.equal(key, SAVE_KEY); if (failRead) throw failRead; return value; },
+    setItem(key, next) { assert.equal(key, SAVE_KEY); if (failWrite) throw failWrite; value = next; },
     read() { return value; }
   };
 }
@@ -75,6 +75,37 @@ test('save-store recovers from malformed local JSON without losing the default s
   assert.deepEqual(errors, ['Save recovery']);
 });
 
+test('save-store survives blocked localStorage access at startup and reports failed writes', () => {
+  const errors = [];
+  const failures = [];
+  const blocked = new Error('storage access denied');
+  const store = createSaveStore({
+    storageProvider: () => { throw blocked; },
+    windowTarget: new EventTargetFake(),
+    documentTarget: new EventTargetFake(),
+    onError: message => errors.push(message),
+    onSaveFailure: message => failures.push(message)
+  });
+  assert.doesNotThrow(() => store.load());
+  assert.deepEqual(store.data, DEFAULT_SAVE);
+  assert.equal(store.flush(), false);
+  assert.deepEqual(errors, ['Save recovery', 'Save failed']);
+  assert.deepEqual(failures, ['Progress could not be saved']);
+});
+
+test('save-store catches quota/write errors and keeps the current in-memory progression intact', () => {
+  const errors = [];
+  const failures = [];
+  const storage = mockStorage(null, { failWrite: new Error('quota exceeded') });
+  const store = createSaveStore({ storage, windowTarget: new EventTargetFake(), documentTarget: new EventTargetFake(), onError: message => errors.push(message), onSaveFailure: message => failures.push(message) });
+  store.load();
+  store.data.coins = 123;
+  assert.equal(store.flush(), false);
+  assert.equal(store.data.coins, 123);
+  assert.deepEqual(errors, ['Save failed']);
+  assert.deepEqual(failures, ['Progress could not be saved']);
+});
+
 test('progression helpers preserve stage unlocks, streak dates, ranks, and seven-day rewards', () => {
   assert.equal(clearedCount({ 1: 3, 2: 0, 3: 1 }), 2);
   assert.equal(maxUnlocked({ 1: 3, 2: 2 }, 1, 10), 3);
@@ -115,7 +146,7 @@ test('stage stars, run payouts, and XP levels preserve the existing reward econo
   assert.equal(levelForXp(600), 3);
 });
 
-test('input adapter filters overlay targets, keeps drag/puzzle behavior, and dispatches slingshot shots', () => {
+test('input adapter isolates overlay and secondary pointers, supports drag and puzzles, and cancels slingshot aim safely', () => {
   const canvas = new EventTargetFake();
   canvas.setPointerCapture = () => {};
   const windowTarget = new EventTargetFake();
@@ -126,28 +157,50 @@ test('input adapter filters overlay targets, keeps drag/puzzle behavior, and dis
   let mode = 'blitz';
   let pauses = 0;
   const input = bindGameInput({ canvas, windowTarget, documentTarget, getState: () => state, getMode: () => mode, onTap: (...args) => taps.push(args), onFireArrow: shot => shots.push(shot), onPause: () => pauses++ });
-  canvas.dispatch('pointerdown', { target: {}, clientX: 3, clientY: 4, preventDefault() {} });
+
+  canvas.dispatch('pointerdown', { target: {}, clientX: 3, clientY: 4, pointerId: 9, preventDefault() {} });
+  canvas.dispatch('pointerdown', { target: canvas, clientX: 3, clientY: 4, pointerId: 9, button: 2, preventDefault() {} });
   assert.equal(taps.length, 0);
   canvas.dispatch('pointerdown', { target: canvas, clientX: 10, clientY: 20, pointerId: 1, preventDefault() {} });
-  canvas.dispatch('pointermove', { target: canvas, clientX: 12, clientY: 22, buttons: 1 });
+  canvas.dispatch('pointermove', { target: canvas, clientX: 90, clientY: 90, pointerId: 2, buttons: 1, isPrimary: false });
+  canvas.dispatch('pointermove', { target: canvas, clientX: 12, clientY: 22, pointerId: 1, buttons: 1 });
   assert.deepEqual(taps, [[10, 20, false], [12, 22, true]]);
+  canvas.dispatch('pointerup', { target: canvas, clientX: 12, clientY: 22, pointerId: 1 });
+
   mode = 'puzzle';
-  canvas.dispatch('pointermove', { target: canvas, clientX: 13, clientY: 23, buttons: 1 });
-  assert.equal(taps.length, 2);
+  canvas.dispatch('pointerdown', { target: canvas, clientX: 12, clientY: 22, pointerId: 4, preventDefault() {} });
+  canvas.dispatch('pointermove', { target: canvas, clientX: 13, clientY: 23, pointerId: 4, buttons: 1 });
+  assert.equal(taps.length, 3);
+  canvas.dispatch('pointerup', { target: canvas, pointerId: 4 });
+
   mode = 'slingshot';
   canvas.dispatch('pointerdown', { target: canvas, clientX: 30, clientY: 40, pointerId: 2, preventDefault() {} });
-  canvas.dispatch('pointermove', { target: canvas, clientX: 35, clientY: 45, buttons: 1 });
-  canvas.dispatch('pointerup', { target: canvas, clientX: 37, clientY: 47 });
+  canvas.dispatch('pointerdown', { target: canvas, clientX: 80, clientY: 90, pointerId: 3, isPrimary: false, preventDefault() {} });
+  canvas.dispatch('pointermove', { target: canvas, clientX: 80, clientY: 90, pointerId: 3, buttons: 1, isPrimary: false });
+  canvas.dispatch('pointerup', { target: canvas, clientX: 80, clientY: 90, pointerId: 3, isPrimary: false });
+  assert.deepEqual(input.getAimPointer(), { x: 30, y: 40 });
+  canvas.dispatch('pointermove', { target: canvas, clientX: 35, clientY: 45, pointerId: 2, buttons: 1 });
+  canvas.dispatch('pointerup', { target: canvas, clientX: 37, clientY: 47, pointerId: 2 });
   assert.deepEqual(shots, [{ x: 37, y: 47 }]);
   assert.equal(input.getAimPointer(), null);
+
+  canvas.dispatch('pointerdown', { target: canvas, clientX: 50, clientY: 60, pointerId: 5, preventDefault() {} });
+  canvas.dispatch('pointercancel', { target: canvas, pointerId: 5 });
+  canvas.dispatch('pointerup', { target: canvas, clientX: 60, clientY: 70, pointerId: 5 });
+  assert.equal(input.getAimPointer(), null);
+  assert.equal(shots.length, 1);
+
   windowTarget.dispatch('keydown', { key: 'Escape' });
   assert.equal(pauses, 1);
+  state = 'paused';
+  windowTarget.dispatch('keydown', { key: 'Escape' });
+  assert.equal(pauses, 1);
+  state = 'playing';
+  canvas.dispatch('pointerdown', { target: canvas, clientX: 60, clientY: 70, pointerId: 6, preventDefault() {} });
   documentTarget.hidden = true;
   documentTarget.dispatch('visibilitychange');
   assert.equal(pauses, 2);
-  state = 'paused';
-  windowTarget.dispatch('keydown', { key: 'Escape' });
-  assert.equal(pauses, 2);
+  assert.equal(input.getAimPointer(), null);
   input.destroy();
   assert.equal(canvas.listeners.get('pointerdown').length, 0);
 });

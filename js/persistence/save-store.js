@@ -63,7 +63,8 @@ export function normalizeSave(input, { cleanName = value => String(value || 'POP
 }
 
 export function createSaveStore({
-  storage = globalThis.localStorage,
+  storage,
+  storageProvider = () => globalThis.localStorage,
   cleanName,
   isAvatar,
   windowTarget = globalThis.window,
@@ -74,11 +75,29 @@ export function createSaveStore({
 } = {}) {
   let data = clone(DEFAULT_SAVE);
   let timer = 0;
+  let storageAdapter = storage;
+  let storageResolved = storage !== undefined;
+  let storageError = null;
   const normalize = input => normalizeSave(input, { cleanName, isAvatar });
+
+  function resolveStorage() {
+    if (!storageResolved) {
+      storageResolved = true;
+      try {
+        storageAdapter = storageProvider();
+      } catch (error) {
+        storageError = error;
+        throw error;
+      }
+    }
+    if (storageError) throw storageError;
+    return storageAdapter;
+  }
 
   function load() {
     try {
-      data = normalize(JSON.parse(storage.getItem(SAVE_KEY) || 'null'));
+      const adapter = resolveStorage();
+      data = normalize(JSON.parse(adapter?.getItem(SAVE_KEY) || 'null'));
     } catch (error) {
       onError('Save recovery', error);
       data = clone(DEFAULT_SAVE);
@@ -89,7 +108,9 @@ export function createSaveStore({
   function flush() {
     clearTimeout(timer);
     try {
-      storage.setItem(SAVE_KEY, JSON.stringify(data));
+      const adapter = resolveStorage();
+      if (!adapter) throw new Error('Browser storage is unavailable');
+      adapter.setItem(SAVE_KEY, JSON.stringify(data));
       return true;
     } catch (error) {
       onError('Save failed', error);

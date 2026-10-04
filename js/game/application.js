@@ -698,6 +698,7 @@ function updateSling(dt) {
 }
 function pause() {
   if (state !== 'playing') return;
+  inputController?.clearAim();
   state = 'paused'; cancelAnimationFrame(raf); setScreen('pause');
 }
 function resume() {
@@ -907,5 +908,5 @@ window.addEventListener('error', event => { console.error('Balloon Blitz error',
 Store.load();
 renderHome();
 setScreen('home');
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
+  if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(console.error));
 }
