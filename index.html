@@ -4,48 +4,158 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#78c9f4">
-  <meta name="description" content="Balloon Blitz V3 — a fast, accessible offline arcade game.">
+  <meta name="description" content="Balloon Blitz V3 — a fast, accessible offline arcade game with campaign, puzzle, and slingshot challenges.">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/app.css">
-  <title>Balloon Blitz V3</title>
+  <title>Balloon Blitz V3 — Sky Realms</title>
 </head>
 <body>
+  <div class="sky" aria-hidden="true"><span class="cloud cloud-one"></span><span class="cloud cloud-two"></span></div>
   <canvas id="game" aria-label="Balloon Blitz play field"></canvas>
-  <div class="sky" aria-hidden="true"></div>
+
   <main id="app">
     <section id="home" class="screen" aria-labelledby="title">
-      <header class="topbar"><div><strong>POPPER</strong><small id="rank">ROOKIE · LV 1</small></div><button id="settingsBtn" class="icon" aria-label="Settings">⚙️</button></header>
-      <div class="hero"><p class="eyebrow">SKY REALMS</p><h1 id="title">BALLOON<br><span>BLITZ</span></h1><p>Pop fast. Build combos. Own the sky.</p></div>
-      <div class="stats" aria-label="Player statistics"><div><b id="best">0</b><span>Best</span></div><div><b id="pops">0</b><span>Pops</span></div><div><b id="coins">0</b><span>Coins</span></div></div>
-      <div class="modes">
-        <button data-mode="blitz"><span>⚡</span><b>Blitz</b><small>60-second rush</small></button>
-        <button data-mode="survival"><span>♾️</span><b>Survival</b><small>Three lives</small></button>
-        <button data-mode="campaign"><span>🎯</span><b>Campaign</b><small id="campaignMeta">Stage 1 of 30</small></button>
+      <header class="topbar">
+        <button id="profileOpen" class="profile-chip" aria-label="Open player profile">
+          <span id="headerAvatar" class="avatar-mini">🎈</span>
+          <span class="profile-copy"><strong id="headerName">POPPER</strong><small id="rank">ROOKIE · LV 1</small></span>
+        </button>
+        <div class="wallet-row" aria-label="Wallet">
+          <button class="wallet-pill reward-pill" id="dailyOpen" aria-label="Open daily rewards">🎁 <span id="dailyBadge">FREE</span></button>
+          <button class="wallet-pill" data-open="shop" aria-label="Open coin shop">🪙 <span id="coins">0</span></button>
+          <button class="wallet-pill gem-pill" data-open="shop" aria-label="Open gem shop">💎 <span id="gems">0</span></button>
+          <button id="settingsBtn" class="icon" aria-label="Settings">⚙️</button>
+        </div>
+      </header>
+
+      <div class="hero">
+        <p class="eyebrow">SKY REALMS</p>
+        <h1 id="title">BALLOON<br><span>BLITZ</span></h1>
+        <p>Pop fast. Build combos. Own the sky.</p>
+        <button id="playBtn" class="primary play-cta">PLAY BLITZ</button>
       </div>
-      <button id="playBtn" class="primary">PLAY BLITZ</button>
+
+      <section class="home-stats" aria-label="Career totals">
+        <div><b id="best">0</b><span>Best score</span></div>
+        <div><b id="pops">0</b><span>Balloons popped</span></div>
+        <div><b id="homeStars">0</b><span>Stages cleared</span></div>
+      </section>
+
+      <section class="mode-section" aria-labelledby="modesTitle">
+        <div class="section-heading"><div><p class="eyebrow">PICK YOUR FLIGHT</p><h2 id="modesTitle">Arcade modes</h2></div><span class="heading-cloud">✦</span></div>
+        <div class="mode-grid">
+          <button class="mode-card selected" data-mode="blitz"><span class="mode-icon">⚡</span><b>Blitz</b><small>60-second rush</small><span class="mode-progress" id="blitzMeta">Personal best · 0</span><i class="mini-track"><i id="blitzFill"></i></i></button>
+          <button class="mode-card" data-mode="survival"><span class="mode-icon">♾️</span><b>Survival</b><small>Three lives. No clock.</small><span class="mode-progress" id="survivalMeta">Best · 0</span><i class="mini-track"><i id="survivalFill"></i></i></button>
+          <button class="mode-card" data-mode="campaign"><span class="mode-icon">🎯</span><b>Campaign</b><small id="campaignMeta">Stage 1 · Pop 14</small><span class="mode-progress" id="campaignProgressMeta">600 stages · 24 worlds</span><i class="mini-track"><i id="campaignFill"></i></i></button>
+          <button class="mode-card" data-mode="puzzle"><span class="mode-icon">🧩</span><b>Puzzle</b><small>One clever chain</small><span class="mode-progress" id="puzzleMeta">50 arrow circuits</span><i class="mini-track"><i id="puzzleFill"></i></i></button>
+          <button class="mode-card" data-mode="slingshot"><span class="mode-icon">🏹</span><b>Slingshot</b><small>Pull back. Let fly.</small><span class="mode-progress" id="slingshotMeta">50 cloudshot stages</span><i class="mini-track"><i id="slingshotFill"></i></i></button>
+        </div>
+      </section>
+
+      <div class="home-actions">
+        <button data-open="maps">🗺️ Stage maps</button>
+        <button data-open="missions">🎁 Rewards & missions</button>
+        <button data-open="shop">🛒 Balloon shop</button>
+        <button data-open="records">🏆 Personal records</button>
+      </div>
+    </section>
+
+    <section id="maps" class="screen hidden" aria-labelledby="mapsTitle">
+      <header class="screen-head"><button class="back-button" data-open="home" aria-label="Back to home">←</button><div><p class="eyebrow">CHOOSE A CHALLENGE</p><h1 id="mapsTitle">Stage maps</h1></div></header>
+      <div class="map-tabs" role="tablist" aria-label="Game maps">
+        <button class="map-tab active" role="tab" aria-selected="true" data-map="campaign">🎯 Campaign</button>
+        <button class="map-tab" role="tab" aria-selected="false" data-map="puzzle">🧩 Puzzle</button>
+        <button class="map-tab" role="tab" aria-selected="false" data-map="slingshot">🏹 Sling</button>
+      </div>
+      <div class="map-world"><span id="worldIcon">☀️</span><div><b id="worldName">Sunny Valley</b><small id="mapProgress">0 stages cleared</small></div></div>
+      <nav id="worldPager" class="world-pager hidden" aria-label="Campaign worlds">
+        <button id="worldPrev" type="button" aria-label="Previous world">←</button>
+        <span><b id="worldOrdinal">WORLD 1 OF 24</b><small>Browse each world's 25 stages</small></span>
+        <button id="worldNext" type="button" aria-label="Next world">→</button>
+      </nav>
+      <div id="stageGrid" class="stage-grid" aria-label="Available stages"></div>
+      <article class="mission-card" aria-live="polite">
+        <div class="mission-kicker" id="missionKicker">STAGE 1 · CAMPAIGN</div>
+        <h2 id="missionTitle">Pop 14 balloons</h2>
+        <p id="missionDesc">A breezy first flight through Sunny Valley.</p>
+        <button id="launchStage" class="primary">▶ PLAY STAGE 1</button>
+      </article>
+      <p class="fine-print">Your progress is saved on this device. Clear a stage to open the next one.</p>
+    </section>
+
+    <section id="shop" class="screen hidden" aria-labelledby="shopTitle">
+      <header class="screen-head"><button class="back-button" data-open="home" aria-label="Back to home">←</button><div><p class="eyebrow">MAKE IT YOURS</p><h1 id="shopTitle">Balloon shop</h1></div></header>
+      <div class="wallet-banner"><span>🪙 <b id="shopCoins">0</b> coins</span><span>💎 <b id="shopGems">0</b> gems</span></div>
+      <p class="section-label">BALLOON SKINS</p><div id="skinList" class="item-list"></div>
+      <p class="section-label">POP EFFECTS</p><div id="effectList" class="item-list"></div>
+      <p class="fine-print">Everything here is earned with in-game coins or daily gems. No purchases.</p>
+    </section>
+
+    <section id="missions" class="screen hidden" aria-labelledby="missionsTitle">
+      <header class="screen-head"><button class="back-button" data-open="home" aria-label="Back to home">←</button><div><p class="eyebrow">A LITTLE SOMETHING EACH DAY</p><h1 id="missionsTitle">Rewards & missions</h1></div></header>
+      <article class="daily-card">
+        <div class="daily-heading"><span class="daily-gift">🎁</span><div><p class="eyebrow">DAILY GIFT</p><h2 id="dailyTitle">Your sky parcel</h2></div></div>
+        <p id="dailyCopy">A fresh reward is ready.</p>
+        <div id="rewardCalendar" class="reward-calendar" aria-label="Seven-day reward cycle"></div>
+        <button id="claimDaily" class="primary">🎁 CLAIM TODAY'S GIFT</button>
+      </article>
+      <p class="section-label">TODAY'S MISSIONS</p><div id="missionList" class="mission-list"></div>
+      <p class="section-label">ACHIEVEMENTS</p><div id="achievementList" class="mission-list"></div>
+    </section>
+
+    <section id="profile" class="screen hidden" aria-labelledby="profileTitle">
+      <header class="screen-head"><button class="back-button" data-open="home" aria-label="Back to home">←</button><div><p class="eyebrow">YOUR FLIGHT LOG</p><h1 id="profileTitle">Player profile</h1></div></header>
+      <article class="profile-card"><div id="profilePreview" class="profile-avatar">🎈</div><div><p class="eyebrow">SKY REALMS EXPLORER</p><h2 id="profileRank">ROOKIE</h2><p id="profileLevel">LEVEL 1 · 0 XP</p><div class="xp-track"><i id="xpFill"></i></div></div></article>
+      <label class="field-label" for="profileName">PLAYER NAME</label><input id="profileName" class="text-field" maxlength="14" autocomplete="nickname" placeholder="POPPER">
+      <p class="section-label">CHOOSE AN AVATAR</p><div id="avatarGrid" class="avatar-grid" role="group" aria-label="Choose your avatar"></div>
+      <button id="saveProfile" class="primary">SAVE PROFILE</button>
+      <div id="profileStats" class="profile-stats"></div>
+    </section>
+
+    <section id="records" class="screen hidden" aria-labelledby="recordsTitle">
+      <header class="screen-head"><button class="back-button" data-open="home" aria-label="Back to home">←</button><div><p class="eyebrow">JUST YOU, GETTING BETTER</p><h1 id="recordsTitle">Personal records</h1></div></header>
+      <p class="fine-print">These are your saved scores on this device—not an online leaderboard.</p>
+      <div id="recordList" class="record-list"></div>
     </section>
 
     <section id="hud" class="hud hidden" aria-live="polite">
-      <button id="pauseBtn" class="icon" aria-label="Pause">⏸</button>
-      <div><small id="modeLabel">BLITZ</small><b id="score">0</b></div>
-      <div><small id="targetLabel">TIME</small><b id="target">60</b></div>
-      <div class="combo"><small>COMBO</small><b id="combo">×1</b></div>
+      <div class="hud-top">
+        <button id="pauseBtn" class="icon pause-icon" aria-label="Pause">Ⅱ</button>
+        <div class="hud-cell"><small id="modeLabel">BLITZ</small><b id="score">0</b></div>
+        <div class="hud-cell"><small id="targetLabel">TIME</small><b id="target">60</b></div>
+        <div class="hud-cell combo-cell"><small>COMBO</small><b id="combo">×1</b></div>
+      </div>
+      <div id="campaignProgress" class="campaign-progress hidden" role="progressbar" aria-label="Campaign stage objective progress" aria-valuemin="0" aria-valuemax="14" aria-valuenow="0" aria-valuetext="0 of 14 objective items">
+        <div class="campaign-progress-copy"><span id="campaignProgressLabel">STAGE GOAL</span><b id="campaignProgressText">0 / 14</b></div>
+        <div class="progress-track" aria-hidden="true"><span id="campaignFillHud"></span></div>
+      </div>
+      <div class="fever-meter"><div class="fever-copy"><span id="feverLabel">🔥 FEVER</span><b id="feverPercent">0%</b></div><div class="progress-track"><span id="feverFill"></span></div></div>
+      <div class="hud-hint"><span id="weaponIcon">👆</span><span id="gameHint">Tap or drag through balloons</span><span id="dartCount"></span></div>
     </section>
 
     <section id="pause" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
-      <div class="card"><h2 id="pauseTitle">Paused</h2><p>Your run is safe.</p><button id="resumeBtn" class="primary">Resume</button><button id="restartBtn">Restart</button><button id="quitBtn">Quit to home</button></div>
+      <div class="card"><p class="eyebrow">TAKE A BREATH</p><h2 id="pauseTitle">Paused</h2><p>Your run is safe.</p><button id="resumeBtn" class="primary">Resume flight</button><button id="restartBtn">Restart stage</button><button id="quitBtn">Quit to home</button></div>
     </section>
 
     <section id="result" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
-      <div class="card"><p class="eyebrow" id="resultKicker">RUN COMPLETE</p><h2 id="resultTitle">Great run!</h2><div class="resultScore" id="finalScore">0</div><p id="resultText"></p><button id="againBtn" class="primary">Play again</button><button id="homeBtn">Back home</button></div>
+      <div class="card"><p class="eyebrow" id="resultKicker">RUN COMPLETE</p><h2 id="resultTitle">Great run!</h2><div class="resultScore" id="finalScore">0</div><p id="resultText"></p><div id="resultStars" class="result-stars" aria-label="Stage stars"></div><button id="againBtn" class="primary">Play again</button><button id="nextStageBtn">Next stage</button><button id="homeBtn">Back home</button></div>
     </section>
 
     <section id="settings" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <div class="card"><h2 id="settingsTitle">Settings</h2><label><span>Sound</span><input id="soundToggle" type="checkbox"></label><label><span>Haptics</span><input id="hapticToggle" type="checkbox"></label><label><span>Reduced effects</span><input id="effectsToggle" type="checkbox"></label><button id="resetBtn" class="danger">Reset progress</button><button id="closeSettingsBtn" class="primary">Done</button></div>
+      <div class="card"><p class="eyebrow">MAKE THE GAME COMFORTABLE</p><h2 id="settingsTitle">Settings</h2><label><span>Sound</span><input id="soundToggle" type="checkbox"></label><label><span>Haptics</span><input id="hapticToggle" type="checkbox"></label><label><span>Reduced effects</span><input id="effectsToggle" type="checkbox"></label><button id="resetBtn" class="danger">Reset progress</button><button id="closeSettingsBtn" class="primary">Done</button></div>
     </section>
 
     <div id="toast" role="status" aria-live="polite"></div>
   </main>
+
+  <nav id="bottomNav" aria-label="Main navigation">
+    <button data-open="home" aria-current="page"><span aria-hidden="true">🏠</span><small>Home</small></button>
+    <button data-open="maps"><span aria-hidden="true">🗺️</span><small>Maps</small></button>
+    <button data-open="missions"><span aria-hidden="true">🎁</span><small>Rewards</small></button>
+    <button data-open="shop"><span aria-hidden="true">🛒</span><small>Shop</small></button>
+    <button data-open="profile"><span aria-hidden="true">👤</span><small>Profile</small></button>
+  </nav>
+
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

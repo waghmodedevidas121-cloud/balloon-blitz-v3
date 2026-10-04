@@ -1,8 +1,8 @@
 {
   "id":"./",
-  "name":"Balloon Blitz V3",
-  "short_name":"Blitz V3",
-  "description":"Fast, accessible offline balloon-popping arcade game.",
+  "name":"Balloon Blitz V3 — Sky Realms",
+  "short_name":"Balloon Blitz",
+  "description":"A fast, accessible offline arcade with campaign, puzzle, and slingshot challenges.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
